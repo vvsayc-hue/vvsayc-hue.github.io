@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supercell ID Login</title>
+    
+    <style>
+        /* --- 1. ZMIENNE I PODSTAWOWA STYLIZACJA --- */
+        
+        :root {
+            --body-bg: #f4f7f9; 
+            --subtle-star-color: rgba(180, 180, 180, 0.7); 
+            --card-color: #ffffff;    
+            --text-color-dark: #1e3a5a; 
+            --shadow-subtle: rgba(0, 0, 0, 0.1); 
+            --shadow-hover: rgba(0, 0, 0, 0.2); 
+            --navbar-bg: #000000;
+            --navbar-text: #ffffff;
+            --navbar-text-faded: #cccccc;
+            --navbar-accent: #3d3d3d; 
+            --border-radius-large: 12px; 
+            --border-radius-squircle: 6px; 
+            --button-blue: #00b0ff; 
+            --button-blue-hover: #0088cc; 
+            --border-light: 1px solid #e0e0e0; 
+            --grid-text-color: #4a4a4a; 
+            --pink-accent: #ffffff; 
+            --max-page-width: 1200px; 
+            
+            /* EDYTOWANE KOLORY GRY - CZARNO-BIAŁY HARDCORE */
+            --game-bg: #080808; /* Ciemne tło */
+            --game-text: #ffffff;
+            --game-accent: #ffffff; /* Biały dla akcentów */
+            --game-panel: #444444; /* Szary dla obramowania */
+            --game-obstacle: #ffffff; /* Czerwony alarm (jedyny kolor) */
+            --game-player: #ffffff; /* Biały gracz */
+            --game-ground: #888888; /* Szary grunt */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            background-color: var(--body-bg); 
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* --- 2. PASEK NAWIGACYJNY (NAVBAR) --- */
+
+        .navbar {
+            width: 100%;
+            height: 60px; 
+            background-color: var(--navbar-bg);
+            color: var(--navbar-text);
+            position: fixed; 
+            top: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .navbar-inner {
+            width: 100%;
+            max-width: var(--max-page-width); 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px; 
+            box-sizing: border-box;
+        }
+
+        .navbar-left { display: flex; align-items: center; gap: 20px; }
+        .navbar-logo-img { height: 35px; width: auto; } 
+        .nav-text-links { display: flex; list-style: none; padding: 0; margin: 0; gap: 30px; }
+        .nav-text-links a { color: var(--navbar-text-faded); text-decoration: none; font-size: 15px; font-weight: 600; transition: color 0.3s; }
+        .nav-text-links a:hover { color: var(--navbar-text); }
+        .navbar-right { display: flex; align-items: center; gap: 5px; }
+        .nav-button-store { padding: 8px 15px; background-color: var(--navbar-accent); color: var(--navbar-text); font-size: 14px; font-weight: bold; border-radius: var(--border-radius-squircle); text-decoration: none; transition: background-color 0.3s; min-width: 60px; text-align: center; }
+        .nav-button-store:hover { background-color: #555555; }
+        .nav-icon { width: 30px; height: 30px; padding: 5px; background-color: var(--navbar-accent); transition: background-color 0.3s; display: flex; align-items: center; justify-content: center; box-sizing: content-box; border-radius: var(--border-radius-squircle); }
+        .nav-icon:hover { background-color: #555555; }
+        .nav-icon img { width: 100%; height: 100%; display: block; }
+        
+        /* --- EDYTOWANY PRZYCISK GRY --- */
+        #gameButton {
+            position: fixed;
+            bottom: 15px; 
+            left: 15px;
+            z-index: 110; 
+            padding: 8px 12px;
+            background-color: var(--game-accent); /* Biały */
+            color: var(--navbar-bg); /* Czarny */
+            font-weight: bold;
+            border: 2px solid var(--navbar-bg);
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            transition: background-color 0.3s, transform 0.1s, color 0.3s;
+            font-size: 12px; 
+            letter-spacing: 0.5px;
+        }
+        #gameButton:hover {
+            background-color: var(--navbar-bg); /* Czarny */
+            color: var(--game-accent); /* Biały */
+            transform: scale(1.05);
+        }
+
+        
+        /* --- 3. GŁÓWNA TREŚĆ, KARTA I PRZYCISK --- */
+
+        .content-wrapper {
+            padding-top: 100px; 
+            flex-grow: 1; 
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            z-index: 5;
+            padding-bottom: 30px; 
+            max-width: var(--max-page-width); 
+        }
+        
+        .card { 
+            background-color: var(--card-color); 
+            padding: 40px; 
+            border-radius: var(--border-radius-large); 
+            border: var(--border-light); 
+            text-align: center; 
+            width: 90%; 
+            max-width: 600px; 
+            box-shadow: 0 8px 20px var(--shadow-subtle); 
+            transition: all 0.4s ease-in-out; 
+            flex-shrink: 0; 
+        }
+        .card:hover { 
+            transform: translateY(-5px) scale(1.01); 
+            box-shadow: 0 15px 40px var(--shadow-hover); 
+        }
+
+        h1 {
+            color: var(--text-color-dark); 
+            margin-top: 0;
+            font-size: 1.8em; 
+        }
+        
+        .card p.small-text {
+            font-size: 1.1em; 
+            color: var(--text-color-dark);
+            margin-top: 10px;
+            margin-bottom: 30px; 
+        }
+        
+        .blue-pill-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--button-blue);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 30px; 
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+
+        .blue-pill-button:hover {
+            background-color: var(--button-blue-hover);
+            transform: translateY(-1px);
+        }
+
+        /* --- 4. SEKCJA Z PRZEWODNIKIEM QR --- */
+
+        .qr-guide-section {
+            width: 90%;
+            max-width: 900px;
+            margin: 40px auto 80px auto; 
+            padding: 50px;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius-large); 
+            border: var(--border-light); 
+            box-shadow: 0 8px 20px var(--shadow-subtle); 
+            transition: all 0.4s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex-shrink: 0;
+            box-sizing: border-box; 
+        }
+        
+        .qr-guide-section:hover { 
+            transform: translateY(-5px) scale(1.005); 
+            box-shadow: 0 15px 40px var(--shadow-hover); 
+        }
+        
+        .qr-guide-section h2 {
+            color: var(--text-color-dark);
+            font-size: 1.6em;
+            margin-bottom: 10px; 
+            font-weight: 800;
+        }
+        
+        .qr-guide-section .qr-subtitle {
+            font-size: 1.1em; 
+            color: var(--grid-text-color); 
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+
+        .image-container {
+            width: 100%;
+            max-width: 350px; 
+            margin-bottom: 30px;
+            border: none; 
+            border-radius: var(--border-radius-large);
+            box-shadow: 0 0 20px rgba(0, 176, 255, 0.8), 0 4px 15px rgba(0, 0, 0, 0.2); 
+            overflow: hidden;
+            flex-shrink: 0; 
+            transition: box-shadow 0.3s;
+        }
+
+        .image-container img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .guide-list {
+            text-align: left; 
+            width: 100%;
+            max-width: 450px; 
+            list-style-type: none; 
+            padding: 0;
+            margin: 0;
+        }
+
+        .guide-list li {
+            background: #f7f7f7; 
+            color: var(--text-color-dark);
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 500;
+            line-height: 1.4;
+            transition: background-color 0.3s;
+        }
+        
+        .guide-list li:hover {
+            background: #e9e9e9;
+        }
+
+        .guide-list li::before {
+            content: attr(data-step); 
+            color: var(--button-blue);
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 15px;
+        }
+
+        /* Responsive layout dla sekcji QR */
+        @media (min-width: 768px) {
+            .qr-guide-section {
+                flex-direction: row;
+                text-align: left;
+                align-items: flex-start;
+                justify-content: space-between;
+                padding: 40px;
+            }
+            .image-container {
+                width: 40%;
+                margin-right: 30px;
+                margin-bottom: 0;
+            }
+            .text-content {
+                width: 60%;
+            }
+            .qr-guide-section h2,
+            .qr-guide-section .qr-subtitle {
+                text-align: left;
+            }
+        }
+        
+        /* --- 5. OKNO MODALNE (LIGHTBOX) --- */
+
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.85); 
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--navbar-bg);
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .modal-video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; 
+            height: 0;
+        }
+        
+        .modal-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: -30px; 
+            right: 0px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 1010; 
+            color: white; 
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #ccc; 
+            text-decoration: none;
+        }
+        
+        /* --- 6. SEKCJA AKTUALNOŚCI (NEWS) --- */
+        
+        #news-container {
+            width: 100%;
+            max-width: 1000px; 
+            margin: 40px auto; 
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .articleGridList_row__EFAwB {
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 20px; 
+            justify-content: space-between; 
+            width: 100%; 
+        }
+        
+        .articleGridList_thumbnailContainer__fMDI_ {
+            width: calc(50% - 10px); 
+            flex-grow: 0; 
+            flex-shrink: 0;
+            box-sizing: border-box;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius-large);
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: left;
+        }
+        
+        .articleGridList_thumbnailContainer__fMDI_:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .articleGridList_thumbnailContainer__fMDI_ a {
+            text-decoration: none;
+            display: block; 
+        }
+
+        .articleGridList_thumbnail__LoEPl {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: block; 
+        }
+        
+        .articleGridList_description__YYAgr {
+            text-align: center;
+            font-size: 14px;
+            color: var(--pink-accent); 
+            font-weight: bold;
+            margin-bottom: 5px;
+            margin-top: 0;
+        }
+        
+        .articleGridList_title__owhEf {
+            font-size: 1.1em;
+            color: var(--text-color-dark);
+            font-weight: 700;
+            line-height: 1.3;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        
+        .articleGridList_title__owhEf:hover {
+            color: var(--button-blue-hover);
+        }
+        
+        .articleGridList_bottomButton__URJ3m {
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .articleGridList_bottomButton__URJ3m a {
+            padding: 10px 20px;
+            background-color: var(--navbar-accent);
+            color: var(--navbar-text);
+            text-decoration: none;
+            border-radius: var(--border-radius-squircle);
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+        
+        .articleGridList_bottomButton__URJ3m a:hover {
+            background-color: #555555;
+        }
+        
+        /* Media Queries: 1 kolumna na małych urządzeniach */
+        @media (max-width: 650px) {
+            .articleGridList_thumbnailContainer__fMDI_ {
+                width: 100%; 
+            }
+        }
+        
+        /* --- 7. STOPKA (FOOTER) --- */
+
+        .footer {
+            width: 100%;
+            background-color: var(--navbar-bg); 
+            color: var(--navbar-text-faded);
+            padding: 40px 0 20px 0; 
+            box-sizing: border-box;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0; 
+            display: flex;
+            justify-content: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center; 
+            max-width: var(--max-page-width); 
+            margin: 0 auto;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px; 
+            box-sizing: border-box;
+        }
+
+        .user-menu {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .user-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            columns: 3;
+            gap: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto; 
+        }
+
+        .user-menu li {
+            padding: 5px 0;
+        }
+
+        .user-menu a, .user-menu button {
+            color: var(--navbar-text-faded);
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.3s;
+        }
+
+        .user-menu a:hover, .user-menu button:hover {
+            color: var(--navbar-text);
+        }
+        
+        .footer-end {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .address span {
+            display: block;
+            line-height: 1.6;
+            font-style: normal;
+            font-size: 12px;
+            color: var(--navbar-text-faded);
+        }
+
+        .supercell-logo-link img {
+            height: 50px; 
+            width: auto;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .supercell-logo-link:hover img {
+            opacity: 1;
+        }
+
+        @media (max-width: 900px) {
+            .footer-content { padding: 0 20px; }
+            .user-menu ul { columns: 1; text-align: left; margin: 0 10%; }
+            .footer-end { flex-direction: column-reverse; align-items: center; text-align: center; }
+            .address { margin-top: 20px; }
+            .qr-guide-section { padding: 30px; }
+        }
+        /* Style dla gwiazdek */
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            background-color: var(--subtle-star-color);
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+        @keyframes twinkle {
+            0% { transform: translateY(100vh) scale(1); opacity: 0.2; } 
+            50% { opacity: 0.7; }
+            100% { transform: translateY(-50vh) scale(0.5); opacity: 0.2; } 
+        }
+
+
+        /* --- 8. EDYTOWANA STYLIZACJA MODALNA GRY --- */
+
+        #gameModal .modal-content {
+            max-width: 700px; 
+            padding: 10px;
+            background-color: var(--game-bg); /* Ciemne tło */
+            border: 2px solid var(--game-accent); /* Biała ramka */
+            overflow: hidden;
+            height: auto; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #gameModal .close {
+            color: var(--game-text);
+        }
+        
+        #game-interface {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #game-interface h2 {
+            color: var(--game-accent);
+            margin: 10px 0;
+            font-size: 1.5em;
+        }
+
+        #gameCanvas {
+            border: 4px solid var(--game-panel);
+            background-color: #000000; /* Czarny, czysto industrialny background */
+            display: block;
+            margin-bottom: 10px;
+            touch-action: none; 
+        }
+
+        #game-info {
+            color: var(--game-text);
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        #game-info span {
+            color: var(--game-accent);
+            font-weight: bold;
+        }
+
+        #game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--game-obstacle); /* Czerwony alarm */
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            pointer-events: none; 
+            display: none;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <button id="gameButton"> HARDCORE CHALLENGE</button>
+
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <div class="navbar-left">
+                <a href="https://supercell.com/" style="display: flex; align-items: center; text-decoration: none;">
+                    <img src="sup.png" alt="Supercell Logo" class="navbar-logo-img">
+                </a>
+                <ul class="nav-text-links">
+                    <li><a href="https://supercell.com/en/games/">Games</a></li>
+                    <li><a href="https://supercell.com/en/careers/">Careers</a></li>
+                    <li><a href="https://supercell.com/en/support/">Support</a></li>
+                    <li><a href="https://supercell.com/en/about-us/">About Us</a></li>
+                </ul>
+            </div>
+            <div class="navbar-right">
+                <a href="https://store.supercell.com/pl" class="nav-button-store">STORE</a>
+                <a href="#" class="nav-icon">
+                    <img src="https://supercell.com/_next/static/media/supercell_creators_grey.f699541d.svg" alt="Creators">
+                </a>
+                <a href="#" class="nav-icon">
+                    <img src="https://supercell.com/_next/static/media/supercell_make_grey.964b2d8d.svg" alt="Make">
+                </a>
+                <a href="#" class="nav-icon">
+                    <img src="https://supercell.com/_next/static/media/supercell_id_grey.62affa0b.svg" alt="ID">
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="stars-container"></div>
+
+    <div style="width: 100%; max-width: var(--max-page-width); z-index: 2;">
+        
+        <div class="content-wrapper">
+            <div class="card">
+                <h1>Odkryj nowy sposób Logowania na Konto Supercell ID!</h1> 
+                <p class="small-text"><strong>Przedstawiamy logowanie sie KODEM QR!</strong></p>
+                
+                <button id="openModalBtn" class="blue-pill-button">
+                    Obejrz Film
+                </button>
+            </div>
+        </div>
+        
+        <div class="qr-guide-section">
+            <div class="image-container">
+                <img src="kod qr.png" alt="Ilustracja kroków logowania Supercell ID kodem QR" loading="lazy">
+            </div>
+            
+            <div class="text-content">
+                <h2>Jak się zalogować Kodem QR?</h2>
+                <p class="qr-subtitle"><- Kod QR do logowania do twojego konta</p> 
+                <ol class="guide-list">
+                    <li data-step="1.">Otwórz <strong>Wiadomości Google</strong> na telefonie</li>
+                    <li data-step="2.">Kliknij swój <strong>Profil</strong> w prawym górnym rogu</li>
+                    <li data-step="3.">Kliknij <strong>"Parowanie Urządzenia"</strong></li>
+                    <li data-step="4.">Kliknij <strong>"Skaner Kodów QR"</strong></li>
+                </ol>
+            </div>
+        </div>
+        <div id="news-container">
+            <div class="articleGridList_row__EFAwB Grid_row__vmKY1">
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Clash Royale is Rolling Out Regional Pricing – Globally" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/clash-royale-regional-pricing-global/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Clash Royale is Rolling Out Regional Pricing – Globally" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/db7bf889a9b6fad05cc2d896d49476a6/store-thumbnail.webp" width="1500" height="1130">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Clash Royale</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Clash Royale is Rolling Out Regional Pricing – Globally" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/clash-royale-regional-pricing-global/">Clash Royale is Rolling Out Regional Pricing – Globally</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Squad Busters Development is Ending, Final Update in December 2025" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/squad-development-ending/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Squad Busters Development is Ending, Final Update in December 2025" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/f78b607faf3e016e1c7c0edc5ecb6b3b/1681/Squad_news_-_30.10_-_1.webp" width="4192" height="3158">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Squad Busters</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Squad Busters Development is Ending, Final Update in December 2025" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/squad-development-ending/">Squad Busters Development is Ending, Final Update in December 2025</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Brawl Stars’ Starr Park Turns Upside Down in Stranger Things Crossover" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/brawlstars-strangerthings/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Brawl Stars’ Starr Park Turns Upside Down in Stranger Things Crossover" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/b28cd5cc8b8039a8f1a18111f4a7d76e/1681/FINAL_-_1026_Loading_Screens__Update_64_-_Stranger_Things__3840x2160.webp" width="2839" height="2139">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Brawl Stars</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Brawl Stars’ Starr Park Turns Upside Down in Stranger Things Crossover" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/brawlstars-strangerthings/">Brawl Stars’ Starr Park Turns Upside Down in Stranger Things Crossover</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Clash Royale Partners With bbno$ For Baby Dragon Evolution Launch" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/clash-royale-bbno/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Clash Royale Partners With bbno$ For Baby Dragon Evolution Launch" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/fd6b1143b7fed93dbc8ce1dfd63abb06/1681/CR_KeyArt_BabyDragonEvolution_FInal_V01.webp" width="7000" height="5273">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Clash Royale</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Clash Royale Partners With bbno$ For Baby Dragon Evolution Launch" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/clash-royale-bbno/">Clash Royale Partners With bbno$ For Baby Dragon Evolution Launch</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Brawl Stars x Subway Surfers Has Arrived!" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/brawl-subway-surfers/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Brawl Stars x Subway Surfers Has Arrived!" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/8aecb6a563472e69d488e04d0aead3d8/1681/BS_SUBWAY_SURFERS_FINAL__1_.webp" width="5591" height="4212">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Brawl Stars</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Brawl Stars x Subway Surfers Has Arrived!" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/brawl-subway-surfers/">Brawl Stars x Subway Surfers Has Arrived!</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Welcoming Drussila Hollanda as our new Head of New Games" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/new-head-of-new-games/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Welcoming Drussila Hollanda as our new Head of New Games" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/42ee960724af6b9c9b7d82209aec399b/drussila-thumbnail.webp" width="1500" height="1130">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">People</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Welcoming Drussila Hollanda as our new Head of New Games" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/new-head-of-new-games/">Welcoming Drussila Hollanda as our new Head of New Games</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Exciting Update From mo.co Co-founder, Luna" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/exciting-update-from-moco-cofounder-luna/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Exciting Update From mo.co Co-founder, Luna" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/82ce36c5b5ca5c0c08efe35adafeaf80/Untitled-2.webp" width="1500" height="1150">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">mo.co</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Exciting Update From mo.co Co-founder, Luna" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/exciting-update-from-moco-cofounder-luna/">Exciting Update From mo.co Co-founder, Luna</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Stay Safe: Spotting Fake Supercell Store Websites" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/fake-supercell-stores/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Stay Safe: Spotting Fake Supercell Store Websites" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/61ffc9f559811af6d9a53b2d1bc7b6ad/IMG_8025.webp" width="1500" height="1130">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">News</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Stay Safe: Spotting Fake Supercell Store Websites" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/fake-supercell-stores/">Stay Safe: Spotting Fake Supercell Store Websites</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Sonic the Hedgehog Enters the Squad Busters Universe" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/squad-sonic/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Sonic the Hedgehog Enters the Squad Busters Universe" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/67891ac7c9dd6c3879db07366c7e377d/FINAL_keyart_-_Squad_Busters_x_Sonic_-_17th_June.webp" width="1500" height="1130">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Squad Busters</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Sonic the Hedgehog Enters the Squad Busters Universe" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/squad-sonic/">Sonic the Hedgehog Enters the Squad Busters Universe</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Inferno Dragon Is Finally Getting His Evolution In Clash Royale" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/inferno-dragon-evolution/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Inferno Dragon Is Finally Getting His Evolution In Clash Royale" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/d95ad7b6b85213ac130a28e64b2ba2e9/Inferno_Dragon_1130.webp" width="1500" height="1130">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Clash Royale</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Inferno Dragon Is Finally Getting His Evolution In Clash Royale" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/inferno-dragon-evolution/">Inferno Dragon Is Finally Getting His Evolution In Clash Royale</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="CLASH is invading Netflix with a new animated series" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/clash-netflix/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="CLASH is invading Netflix with a new animated series" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/337d3c0dd9bb148f592be10edd2b02e3/CLSH_AnncImage_v03_1500x1130_Patrick_Flatten.webp" width="1500" height="1130">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Entertainment &amp; Partnerships</p>
+                    <a class="articleGridList_title__owhEf" aria-label="CLASH is invading Netflix with a new animated series" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/clash-netflix/">CLASH is invading Netflix with a new animated series</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Heroes and Squaddies Arrive in Squad Busters" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/squad-heroes/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Heroes and Squaddies Arrive in Squad Busters" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/6b860e6814faf09dd55ee4c4551f19ba/SB_SocialBanners_HeroesComing_website_1500x1130.webp" width="1500" height="1130">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Squad Busters</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Heroes and Squaddies Arrive in Squad Busters" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/squad-heroes/">Heroes and Squaddies Arrive in Squad Busters</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="Four Years of Unity and Community: Better Games Together Continues Supporting Helsinki Pride" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/helsinki-pride-2025/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="Four Years of Unity and Community: Better Games Together Continues Supporting Helsinki Pride" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/61b5640f837e6c83a51a7b6bc7c8b2ae/1681/DSC04714.webp" width="2429" height="1830">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Good Stuff</p>
+                    <a class="articleGridList_title__owhEf" aria-label="Four Years of Unity and Community: Better Games Together Continues Supporting Helsinki Pride" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/helsinki-pride-2025/">Four Years of Unity and Community: Better Games Together Continues Supporting Helsinki Pride</a>
+                </div>
+                
+                <div class="articleGridList_thumbnailContainer__fMDI_" data-sentry-component="Thumbnail" data-sentry-source-file="index.tsx">
+                    <a aria-label="WWE Superstars Take Over Clash of Clans Ahead of WrestleMania 41" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/clashofclans-x-wwe/">
+                        <picture style="line-height: 0;">
+                            <img class="articleGridList_thumbnail__LoEPl" alt="WWE Superstars Take Over Clash of Clans Ahead of WrestleMania 41" data-sentry-element="Image" data-sentry-component="ImageComponent" data-sentry-source-file="index.tsx" src="https://supercell.com/images/443ac43b1c7450ce1ad55668e3d08cf7/1681/WWE_x_Clash_of_Clans_Key_Art_2.webp" width="3830" height="2886">
+                        </picture>
+                    </a>
+                    <p class="articleGridList_description__YYAgr">Clash of Clans</p>
+                    <a class="articleGridList_title__owhEf" aria-label="WWE Superstars Take Over Clash of Clans Ahead of WrestleMania 41" data-sentry-element="Link" data-sentry-component="LinkComponent" data-sentry-source-file="index.tsx" href="/en/news/clashofclans-x-wwe/">WWE Superstars Take Over Clash of Clans Ahead of WrestleMania 41</a>
+                </div>
+                
+               
+            </div>
+        </div>
+        </div> 
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeGameModalBtn">&times;</span> 
+            
+            <div id="game-interface">
+                <h2>SUPER JUMPER: HARDCORE MODE</h2>
+                
+                <div style="position: relative;">
+                    <canvas id="gameCanvas" width="680" height="250"></canvas>
+                    <div id="game-message">KLIKNIJ, ABY ZACZĄĆ (NEMOŻLIWE)</div>
+                </div>
+
+                <div id="game-info">
+                    Wynik: <span id="score-display">0</span> | Tajna Nagroda (SECRET) - Najlepszy: <span id="highscore-display">0</span>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModalBtn">&times;</span> 
+            <div class="modal-video-container">
+                <iframe id="youtube-iframe" width="560" height="315" 
+                        src="https://www.youtube.com/embed/kYv_3M14f14?enablejsapi=1&amp;rel=0" 
+                        title="YouTube video player" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer" role="contentinfo">
+        <div class="footer-content">
+            
+            <nav title="footer" class="user-menu">
+                <ul>
+                    <li><a href="/en/terms-of-service/">Terms of Service</a></li>
+                    <li><a href="/en/privacy-policy/">Privacy Policy</a></li>
+                    <li><a href="/en/parents/">Parent's Guide</a></li>
+                    <li><a href="/en/safe-and-fair-play/">Safe and Fair Play Policy</a></li>
+                    <li><a href="/en/accessibility-statement-supercell-com/">Accessibility Statement</a></li>
+                    <li><a href="/en/our-legal-documents/">Other Legal Docs</a></li>
+                    <li><a href="/en/media-center/">Media Center</a></li>
+                    <li><a href="/en/our-domains/">Our Domains</a></li>
+                    <li><button>Manage Cookies</button></li>
+                </ul>
+            </nav>
+        
+            <div class="footer-end">
+                <address class="address">
+                    <span>Supercell Oy</span>
+                    <span>Jätkäsaarenlaituri 1</span>
+                    <span>00180 Helsinki</span>
+                    <span>Finland</span>
+                </address>
+                <a class="supercell-logo-link" href="/en/">
+                    <img src="https://supercell.com/_next/static/media/supercell_logo.50e3c1ff.webp" alt="Supercell logo" class="footer-supercell-logo">
+                </a>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        // Logika gwiazdek (NIE ZMIENIANA)
+        const starsContainer = document.querySelector('.stars-container');
+        const numStars = 100; 
+        for (let i = 0; i < numStars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            const size = Math.random() * 8 + 3; 
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}vw`; 
+            const duration = Math.random() * 10 + 15; 
+            star.style.animationDuration = `${duration}s`;
+            const delay = Math.random() * -duration; 
+            star.style.animationDelay = `${delay}s`;
+            starsContainer.appendChild(star);
+        }
+        
+        // Logika OKNA MODALNEGO WIDEO (NIE ZMIENIANA)
+        const modalVideo = document.getElementById("videoModal");
+        const btnVideo = document.getElementById("openModalBtn");
+        const spanVideo = document.getElementById("closeModalBtn");
+        const iframe = document.getElementById("youtube-iframe");
+        let videoSrc = iframe.src.split('?')[0]; 
+        let videoParams = iframe.src.split('?')[1] || '';
+
+        function stopVideo() {
+            iframe.src = videoSrc + '?' + videoParams.replace("&autoplay=1", "") + "&amp;rel=0";
+        }
+        
+        btnVideo.onclick = function() {
+            modalVideo.style.display = "flex";
+            iframe.src = videoSrc + '?' + videoParams + "&autoplay=1&amp;rel=0"; 
+        }
+
+        spanVideo.onclick = function() {
+            modalVideo.style.display = "none";
+            stopVideo();
+        }
+
+        // Logika OKNA MODALNEGO GRY (EDYTOWANA)
+        const modalGame = document.getElementById("gameModal");
+        const btnGame = document.getElementById("gameButton");
+        const spanGame = document.getElementById("closeGameModalBtn");
+        const gameMessage = document.getElementById('game-message');
+        const scoreDisplay = document.getElementById('score-display');
+        const highscoreDisplay = document.getElementById('highscore-display');
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const GAME_WIDTH = canvas.width;
+        const GAME_HEIGHT = canvas.height;
+        const GROUND_Y = GAME_HEIGHT - 30;
+
+        let gameStatus = 'ready'; 
+        let score = 0;
+        let highscore = localStorage.getItem('supercellJumperHighscore') || 0;
+        let animationFrameId;
+        
+        // Obiekt Gracza (EDYTOWANY)
+        let player = {
+            x: 50,
+            y: GROUND_Y - 40,
+            width: 40,
+            height: 40,
+            color: 'var(--game-player)', // Biały
+            isJumping: false,
+            velocityY: 0,
+            gravity: 1.8, // Zwiększona grawitacja dla dynamiczniejszych skoków
+            jumpStrength: -25 // Zwiększona siła skoku dla "powietrznych" skoków
+        };
+
+        // Obiekt Przeszkody (EDYTOWANY)
+        class Obstacle {
+            constructor() {
+                this.width = Math.random() * 20 + 20; // 20 do 40
+                this.height = Math.random() * 30 + 30; // 30 do 60
+                this.x = GAME_WIDTH;
+                this.y = GROUND_Y - this.height;
+                this.color = 'var(--game-obstacle)'; // Czerwony
+                this.speed = 8 + Math.random() * 3; // Zwiększona prędkość: 8 do 11
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update() {
+                this.x -= this.speed;
+            }
+        }
+        
+        let obstacles = [];
+        let timeSinceLastObstacle = 0;
+        let obstacleInterval = 80; // Szybciej niż poprzednio
+
+        // --- FUNKCJE GRY ---
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            // Zmieniony symbol na "X" lub "!!" dla hardcore
+            ctx.fillStyle = '#ffffff'; // Czerwony
+            ctx.font = '24px Arial';
+            ctx.fillText('X', player.x + 5, player.y + 30);
+        }
+
+        function updatePlayer() {
+            if (player.isJumping) {
+                player.velocityY += player.gravity;
+                player.y += player.velocityY;
+
+                if (player.y >= GROUND_Y - player.height) {
+                    player.y = GROUND_Y - player.height;
+                    player.isJumping = false;
+                    player.velocityY = 0;
+                }
+            }
+        }
+
+        function jump() {
+            if (!player.isJumping) {
+                player.isJumping = true;
+                player.velocityY = player.jumpStrength;
+            }
+        }
+
+        function generateObstacles() {
+            timeSinceLastObstacle++;
+            
+            // Jeszcze większe zwiększenie trudności
+            if (score > 100) obstacleInterval = 70;
+            if (score > 300) obstacleInterval = 50;
+            if (score > 500) obstacleInterval = 40; // Ekstremalnie szybko
+
+            if (timeSinceLastObstacle > obstacleInterval) {
+                obstacles.push(new Obstacle());
+                timeSinceLastObstacle = 0;
+                obstacleInterval = Math.floor(Math.random() * 90) + 50; // Bardzo losowy i krótki interwał
+            }
+
+            // Aktualizuj i rysuj przeszkody
+            obstacles.forEach((obstacle, index) => {
+                obstacle.update();
+                obstacle.draw();
+
+                // Usuń, jeśli poza ekranem
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.splice(index, 1);
+                }
+            });
+        }
+
+        function checkCollision() {
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                
+                // Bounding box collision
+                if (
+                    player.x < obs.x + obs.width &&
+                    player.x + player.width > obs.x &&
+                    player.y < obs.y + obs.height &&
+                    player.y + player.height > obs.y
+                ) {
+                    gameOver();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function drawGround() {
+            ctx.strokeStyle = 'var(--game-ground)'; // Szary grunt
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, GROUND_Y);
+            ctx.lineTo(GAME_WIDTH, GROUND_Y);
+            ctx.stroke();
+        }
+
+        function draw() {
+            // Tło - Czarny
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            drawGround();
+            drawPlayer();
+            
+            if (gameStatus === 'running') {
+                updatePlayer();
+                generateObstacles();
+                score++;
+                scoreDisplay.textContent = Math.floor(score / 10); 
+                checkCollision();
+            } else if (gameStatus === 'gameover') {
+                // Koniec gry, komunikat wyświetlany w #game-message
+            }
+            
+            if (gameStatus !== 'gameover') {
+                animationFrameId = requestAnimationFrame(draw);
+            }
+        }
+        
+        function startGame() {
+            if (gameStatus === 'running') return;
+            
+            // Reset
+            player.y = GROUND_Y - player.height;
+            player.isJumping = false;
+            player.velocityY = 0;
+            obstacles = [];
+            score = 0;
+            timeSinceLastObstacle = 0;
+            gameStatus = 'running';
+
+            gameMessage.style.display = 'none';
+            scoreDisplay.textContent = 0;
+            
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            draw();
+        }
+
+        function gameOver() {
+            gameStatus = 'gameover';
+            
+            // Aktualizacja Highscore
+            const finalScore = Math.floor(score / 10);
+            if (finalScore > highscore) {
+                highscore = finalScore;
+                localStorage.setItem('supercellJumperHighscore', highscore);
+            }
+            highscoreDisplay.textContent = highscore;
+
+            // Zmieniona wiadomość o zakończeniu gry
+            gameMessage.textContent = `GAME OVER! Secret: ${finalScore}`;
+            gameMessage.style.display = 'block';
+            
+            cancelAnimationFrame(animationFrameId);
+        }
+        
+        // --- HANDLERY ZDARZEŃ (NIE ZMIENIANE) ---
+        
+        function handleInput(e) {
+            if (e.target.id === 'gameCanvas' || e.key === ' ' || e.key === 'ArrowUp' || e.type === 'touchstart') {
+                e.preventDefault();
+                if (gameStatus === 'running') {
+                    jump();
+                } else if (gameStatus === 'ready' || gameStatus === 'gameover') {
+                    startGame();
+                }
+            }
+        }
+        
+        canvas.addEventListener('click', handleInput);
+        canvas.addEventListener('touchstart', handleInput);
+        document.addEventListener('keydown', handleInput);
+        
+        // --- LOGIKA MODALI (EDYTOWANA WIADOMOŚĆ) ---
+        
+        btnGame.onclick = function() {
+            modalGame.style.display = "flex";
+            highscoreDisplay.textContent = highscore;
+            
+            if (gameStatus === 'ready' || gameStatus === 'gameover') {
+                 gameMessage.textContent = `KLIKNIJ LUB NACIŚNIJ SPACJĘ, ABY ZACZĄĆ. (Nagroda: SECRET)`;
+                 gameMessage.style.display = 'block';
+                 if (gameStatus === 'gameover') draw(); 
+                 gameStatus = 'ready';
+            }
+        }
+
+        spanGame.onclick = function() {
+            modalGame.style.display = "none";
+            if (gameStatus === 'running') {
+                cancelAnimationFrame(animationFrameId);
+                gameStatus = 'ready';
+            }
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == modalVideo) {
+                modalVideo.style.display = "none";
+                stopVideo();
+            }
+            if (event.target == modalGame) {
+                if (event.target.id === 'gameModal') {
+                    modalGame.style.display = "none";
+                     if (gameStatus === 'running') {
+                        cancelAnimationFrame(animationFrameId);
+                        gameStatus = 'ready';
+                    }
+                }
+            }
+        }
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                modalVideo.style.display = "none";
+                stopVideo();
+                if (modalGame.style.display === "flex") {
+                    modalGame.style.display = "none";
+                     if (gameStatus === 'running') {
+                        cancelAnimationFrame(animationFrameId);
+                        gameStatus = 'ready';
+                    }
+                }
+            }
+        });
+        
+        // Rysowanie ekranu początkowego
+        draw(); 
+    </script>
+
+</body>
+</html>
